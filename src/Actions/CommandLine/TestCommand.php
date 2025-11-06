@@ -1,5 +1,5 @@
 <?php
-namespace Hexbatch\Thangs\Actions;
+namespace Hexbatch\Thangs\Actions\CommandLine;
 
 use Illuminate\Console\Command;
 use Lorisleiva\Actions\Concerns\AsAction;
