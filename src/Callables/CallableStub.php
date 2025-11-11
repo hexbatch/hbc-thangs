@@ -18,8 +18,4 @@ class CallableStub implements ICommandCallable
         return new CallableReturnStub(status: TypeOfCmdStatus::CMD_SUCCESS,data: ['test'=>1,'found'=>['kids'=>$children_args,'me'=>$command_args]]);
     }
 
-    public static function makeBuild(IThangBuilder $builder): void
-    {
-        // TODO: Implement makeBuild() method.
-    }
 }

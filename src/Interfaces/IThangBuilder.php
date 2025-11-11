@@ -18,12 +18,12 @@ interface IThangBuilder
     public function setThangUuid(string $uuid = null) : IThangBuilder;
     public function bubbleExceptions(bool $b_bubble = true) : IThangBuilder;
 
-    public function addChild(
-        string $command_class,?bool $is_async = null,bool $bubble_exceptions = false,array $command_args = [],array $command_tags = []
+    public function leaf(
+        string|CommandParams|array $command_class,?bool $is_async = null,array $command_args = [],array $command_tags = [],?bool $bubble_exceptions = null
     ) : IThangBuilder;
 
-    public function addParent(
-        string $command_class,?bool $is_async = null,bool $bubble_exceptions = false,array $command_args = [],array $command_tags = []
+    public function tree(
+        string|CommandParams|array $command_class,?bool $is_async = null,array $command_args = [],array $command_tags = [],?bool $bubble_exceptions = null
     ) : IThangBuilder;
 
     public function end(): IThangBuilder;
@@ -33,6 +33,7 @@ interface IThangBuilder
     public function getNamespace() : UserNamespace;
     public function getCallbackUrl() : ?string;
     public function getThangUuid() : ?string;
+    public function isEmpty() : bool;
 
     /** @return Collection<CommandParams> */
     public function getCommands() : Collection;

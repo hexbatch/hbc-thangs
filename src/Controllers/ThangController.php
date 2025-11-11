@@ -97,15 +97,15 @@ class ThangController  {
 
         $builder = ThangBuilder::createBuilder()
             ->bubbleExceptions()
-            ->addParent(command_class: CallableStub::class, is_async: false, command_args: ['peanut_butter'=>1], command_tags: ['post-test','pre-test','test'])
+            ->tree(command_class: CallableStub::class, is_async: false, command_args: ['peanut_butter'=>1], command_tags: ['post-test','pre-test','test'])
 
-            ->addChild(command_class: CallableStub::class,command_args: ['apples'=>'granny smith'],command_tags: ['post-test','pre-test','lost'])
-            ->addParent(command_class: CallableStub::class,command_args: ['More_peanut_butter'=>3],command_tags: ['post-test','pre-test','lost-land'])//
-            ->addChild(command_class: CallableStub::class,command_args: ['lakes'=>'red'],command_tags: ['post-test','pre-test','lost-land-dino'])//
+            ->leaf(command_class: CallableStub::class,command_args: ['apples'=>'granny smith'],command_tags: ['post-test','pre-test','lost'])
+            ->tree(command_class: CallableStub::class,command_args: ['More_peanut_butter'=>3],command_tags: ['post-test','pre-test','lost-land'])//
+            ->leaf(command_class: CallableStub::class,command_args: ['lakes'=>'red'],command_tags: ['post-test','pre-test','lost-land-dino'])//
             ->end()
             ->setNamespace(Utilities::getCurrentNamespace())
-            ->setSavePolicy(TypeOfThangSavePolicy::ALWAYS_SAVE)
-            ->setAsyncPolicy(TypeOfThangAsyncPolicy::ALWAYS_ASYNC)
+            ->setSavePolicy(TypeOfThangSavePolicy::AUTO_SAVE)
+            ->setAsyncPolicy(TypeOfThangAsyncPolicy::AUTO_ASYNC)
             ;
        // $what = $builder->showTree();
         $thang_tree = $builder->execute();

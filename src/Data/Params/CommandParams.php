@@ -27,18 +27,18 @@ class CommandParams extends Data
 
         #[OA\Property( title:"Command args", items: new OA\Items(),nullable: true)]
         /** @var mixed[] $command_args */
-        public array|null $command_args ,
+        public array|null $command_args = [],
 
 
         #[OA\Property( title:"Command tags", items: new OA\Items(),nullable: true)]
         /** @var mixed[] $command_tags */
-        public array|null $command_tags,
+        public array|null $command_tags =[],
 
         #[OA\Property( title:"Async")]
         public bool $is_async = false,
 
         #[OA\Property( title:"Bubble exceptions")]
-        public bool $bubble_exceptions = false,
+        public ?bool $bubble_exceptions = null,
 
 
     ) {

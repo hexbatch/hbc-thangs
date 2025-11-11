@@ -9,6 +9,7 @@ use App\Helpers\Utilities;
 use App\Models\UserNamespace;
 use Hexbatch\Thangs\Data\ThangData;
 
+use Hexbatch\Thangs\Enums\TypeOfCmdStatus;
 use Hexbatch\Thangs\Enums\TypeOfThangAsyncPolicy;
 use Hexbatch\Thangs\Enums\TypeOfThangSavePolicy;
 use Hexbatch\Thangs\Exceptions\ThangRefCodes;
@@ -128,6 +129,14 @@ class Thang extends Model
         }
 
         return $ret;
+    }
+
+    public function getRootCommand() : ?ThangCommand {
+        return ThangCommand::getRootCommandFromCollection($this->commands);
+    }
+
+    public function getRootStatus() : ?TypeOfCmdStatus {
+        return $this->getRootCommand()?->command_status??null;
     }
 
 

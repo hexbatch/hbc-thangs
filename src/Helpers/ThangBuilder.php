@@ -19,7 +19,7 @@ class ThangBuilder implements IThangBuilder
     protected TypeOfThangAsyncPolicy $async_policy = TypeOfThangAsyncPolicy::AUTO_ASYNC;
     protected ?UserNamespace $namespace = null;
     protected ?string $callback_url = null;
-    protected bool $always_bubble_exceptions = false;
+    protected ?bool $bubble_exceptions_policy = null;
     protected ?ThangTree $tree = null;
 
     /** @var Collection<ThangCommandData> */
@@ -46,6 +46,7 @@ class ThangBuilder implements IThangBuilder
     {
         $this->builder = new \Tree\Builder\NodeBuilder();
         $this->list = new Collection();
+        $this->bubble_exceptions_policy = config('hbc-thangs.bubble_exceptions_policy');
     }
 
     public static function createBuilder()
@@ -78,25 +79,34 @@ class ThangBuilder implements IThangBuilder
         return $this;
     }
 
-    public function bubbleExceptions(bool $b_bubble = true) : IThangBuilder
+    public function bubbleExceptions(?bool $b_bubble = true) : IThangBuilder
     {
-        $this->always_bubble_exceptions = $b_bubble;
+        $this->bubble_exceptions_policy = $b_bubble;
         return $this;
     }
 
     protected function doCommand(
-        string $command_class, ?bool $is_async = null, bool $bubble_exceptions = false,
-        array $command_args = [], array $command_tags = []): ThangCommand
+        string|CommandParams|array $command_class, ?bool $is_async = null,
+        array $command_args = [], array $command_tags = [], ?bool $bubble_exceptions = null): ThangCommand
     {
-        if ($this->always_bubble_exceptions) {$bubble_exceptions = true;}
+        if( $command_class instanceof CommandParams) {
+            $param = CommandParams::validateAndCreate($command_class->toArray());
+        }
+        elseif (is_array($command_class)) {
+            $param = CommandParams::validateAndCreate($command_class);
+        }
+        else {
+            if ($this->bubble_exceptions_policy !== null ) {$bubble_exceptions = $this->bubble_exceptions_policy;}
 
-        $param = CommandParams::validateAndCreate([
-            'command_class' =>$command_class,
-            'is_async' =>!!$is_async,
-            'bubble_exceptions' =>$bubble_exceptions,
-            'command_args' =>$command_args,
-            'command_tags' =>$command_tags,
-        ]);
+            $param = CommandParams::validateAndCreate([
+                'command_class' =>$command_class,
+                'is_async' =>!!$is_async,
+                'bubble_exceptions' =>!!$bubble_exceptions,
+                'command_args' =>$command_args,
+                'command_tags' =>$command_tags,
+            ]);
+        }
+
 
         $cmd = ThangTree::generateMemoryCommand($param,$this->local_parent_uuid);
         $this->list[] = $cmd;
@@ -104,12 +114,12 @@ class ThangBuilder implements IThangBuilder
         return $cmd;
     }
 
-    public function addParent(
-        string $command_class, ?bool $is_async = null, bool $bubble_exceptions = false,
-        array $command_args = [], array $command_tags = []): IThangBuilder
+    public function tree(
+        string|CommandParams|array $command_class, ?bool $is_async = null,
+        array $command_args = [], array $command_tags = [], ?bool $bubble_exceptions = null): IThangBuilder
     {
-        $cmd = $this->doCommand(command_class: $command_class,is_async: $is_async,bubble_exceptions: $bubble_exceptions,
-                                    command_args: $command_args,command_tags: $command_tags);
+        $cmd = $this->doCommand(command_class: $command_class, is_async: $is_async, command_args: $command_args,
+            command_tags: $command_tags, bubble_exceptions: $bubble_exceptions);
 
         $this->builder->tree($cmd);
         $this->local_parent_uuid = $cmd->ref_uuid;
@@ -119,16 +129,23 @@ class ThangBuilder implements IThangBuilder
         return $this;
     }
 
-    public function addChild(
-        string $command_class, ?bool $is_async = null, bool $bubble_exceptions = false,
-        array $command_args = [], array $command_tags = []): IThangBuilder
+    public function leaf(
+        string|CommandParams|array $command_class, ?bool $is_async = null,
+        array $command_args = [], array $command_tags = [], ?bool $bubble_exceptions = null): IThangBuilder
     {
-        $cmd = $this->doCommand(command_class: $command_class,is_async: $is_async,bubble_exceptions: $bubble_exceptions,
-            command_args: $command_args,command_tags: $command_tags);
 
-        $this->builder->leaf($cmd);
 
-        return $this;
+        if ($this->isEmpty()) {
+            return $this->tree(command_class: $command_class, is_async: $is_async, command_args: $command_args,
+                command_tags: $command_tags, bubble_exceptions: $bubble_exceptions);
+        } else {
+            $cmd = $this->doCommand(command_class: $command_class, is_async: $is_async, command_args: $command_args,
+                command_tags: $command_tags, bubble_exceptions: $bubble_exceptions);
+            $this->builder->leaf($cmd);
+            return $this;
+        }
+
+
     }
 
 
@@ -144,7 +161,9 @@ class ThangBuilder implements IThangBuilder
         return $this->list;
     }
 
-
+    public function isEmpty() : bool {
+        return $this->list->count() === 0;
+    }
 
 
 

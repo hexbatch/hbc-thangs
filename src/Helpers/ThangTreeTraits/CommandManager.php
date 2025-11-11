@@ -116,7 +116,7 @@ trait CommandManager
             'command_args' => $params->command_args,
             'command_tags' => $params->command_tags,
             'is_async' => $params->is_async,
-            'bubble_exceptions' => $params->bubble_exceptions,
+            'bubble_exceptions' => !!$params->bubble_exceptions,
             'command_status' => TypeOfCmdStatus::CMD_WAITING,
 
         ]);
